@@ -53,6 +53,11 @@ def test_for(mess,formu,res_for):
     
 #A VOUS DE JOUER#
 def evaluer_clause(clause,list_var):
+    '''
+    Arguments : une liste d'entiers non nuls traduisant une clause,une liste de booléens informant de valeurs 
+    logiques connues (ou None dans le cas contraire) pour un ensemble de variables
+    Renvoie : None ou booléen
+    '''
     if len(clause)==0:
         return False
 
@@ -90,15 +95,16 @@ clause6=[1,2,3]
 list_var6=[False,False,True]
 test("essai cas 6 evaluer_clause : ",evaluer_clause(clause6,list_var6),True)
 '''
-'''
-Arguments : une liste d'entiers non nuls traduisant une clause,une liste de booléens informant de valeurs 
-logiques connues (ou None dans le cas contraire) pour un ensemble de variables
-Renvoie : None ou booléen
-'''
+
     
 
 
 def evaluer_cnf(formule,list_var):
+    '''
+    Arguments : une liste de listes d'entiers non nuls traduisant une formule,une liste de booléens informant
+    de valeurs logiques connues (ou None dans le cas contraire) pour un ensemble de variables
+    Renvoie : None ou booléen
+    '''
     lst_result = []
     copy_form = copy.deepcopy(formule)
     for i in range(len(formule)):
@@ -112,11 +118,7 @@ def evaluer_cnf(formule,list_var):
     else:
         return True
     
-    '''
-    Arguments : une liste de listes d'entiers non nuls traduisant une formule,une liste de booléens informant
-    de valeurs logiques connues (ou None dans le cas contraire) pour un ensemble de variables
-    Renvoie : None ou booléen
-    '''
+    
 '''   
 for1=[[1,2],[2,-3,4],[-1,-2],[-1,-2,-3],[1]]
 list_var_for1_test1=[True,False,False,None]
@@ -128,6 +130,10 @@ test('test3 evaluer_cnf : ',evaluer_cnf(for1,list_var_for1_test3),False)
 '''
 
 def determine_valuations(list_var):
+    '''Arguments : une liste de booléens informant de valeurs logiques connues (ou None dans le cas contraire) 
+    pour un ensemble de variables.
+    Renvoie : La liste de toutes les valuations (sans doublon) envisageables pour les variables de list_var
+    '''
     valuations = [list(list_var)]
     for i in range(len(list_var)):
         if list_var[i] is None:
@@ -148,13 +154,10 @@ def determine_valuations(list_var):
 
     return valuations
         
-    '''Arguments : une liste de booléens informant de valeurs logiques connues (ou None dans le cas contraire) 
-    pour un ensemble de variables.
-    Renvoie : La liste de toutes les valuations (sans doublon) envisageables pour les variables de list_var
-    '''
+   
 
     
-
+'''
 list_var1=[True,None,False,None]
 print(test_determine_valuations('res_test_determine_valuations cas 1 : ',list_var1,[[True, True, False, True], [True, False, False, True], [True, True, False, False], [True, False, False, False]]))
 list_var2=[None,False,True,None,True,False]
@@ -163,14 +166,20 @@ list_var3=[False,True,True,False]
 print(test_determine_valuations('res_test_determine_valuations cas 3 : ',list_var3,[[False, True, True, False]]))
 list_var4=[None,None,None]
 print(test_determine_valuations('res_test_determine_valuations cas 4 : ',list_var4,[[True, True, True], [False, True, True], [True, False, True], [False, False, True], [True, True, False], [False, True, False], [True, False, False], [False, False, False]]))
-
+'''
 
 def resol_sat_force_brute(formule,list_var):
-    '''Arguments : une liste de listes d'entiers non nuls traduisant une formule,une liste de booléens informant de valeurs logiques connues (ou None dans le cas contraire) pour un ensemble de variables
+    '''Arguments : une liste de listes d'entiers non nuls traduisant une formule,une liste de booléens informant de valeurs logiques 
+    connues (ou None dans le cas contraire) pour un ensemble de variables
     Renvoie : SAT,l1
     avec SAT : booléen indiquant la satisfiabilité de la formule
           l1 : une liste de valuations rendant la formule vraie ou une liste vide
-'''
+    '''
+    lst_valuation_poss = determine_valuations(list_var)
+    for valuation in lst_valuation_poss:
+        if evaluer_cnf(formule, valuation):
+            return True, valuation
+    return False, []
 '''
 for1=[[1,2],[2,-3,4],[-1,-2],[-1,-2,-3],[1],[-1,2,3]]
 list_var_for1=[None,None,None,None]
@@ -187,18 +196,18 @@ test('test3 resol_sat_force_brute : ',resol_sat_force_brute(for3,list_var_for3),
 for4=[[-1,-2],[-1,2,-3,4],[2,3,4],[3],[1,-4],[-1,2],[1,2]]
 list_var_for4=[None,None,None,True]
 test('test4 resol_sat_force_brute : ',resol_sat_force_brute(for4,list_var_for4),(False,[]))
-
-
 '''
+
+
 
 
 
 def enlever_litt_for(formule,litteral):
     '''Arguments :
-formule : comme précédemment
-litteral : un entier non nul traduisant la valeur logique prise par une variable
-    Renvoie : la formule simplifiée
-'''
+    formule : comme précédemment
+    litteral : un entier non nul traduisant la valeur logique prise par une variable
+        Renvoie : la formule simplifiée
+    '''
     
 '''for1=[[1,2,4,-5],[-1,2,3,-4],[-1,-2,-5],[-3,4,5],[-2,3,4,5],[-4]]
 litt1=4
@@ -207,7 +216,7 @@ test('essai cas 1 enlever_litt_for : ',enlever_litt_for(for1,litt1),[[-1, 2, 3],
 def init_formule_simpl_for(formule_init,list_var):
     '''
     Renvoie : La formule simplifiée en tenant compte des valeurs logiques renseignées dans list_var
-'''
+    '''
 
 '''
 list_var_for1=[False, None, None, False, None]
@@ -252,7 +261,8 @@ def progress(list_var,list_chgmts):
     Renvoie : l1,l2
     l1 : nouvelle list_var 
     l2 : nouvelle list_chgmts 
-'''
+    '''
+    
 '''
 list_var=[True, None, None, None, None]
 list_chgmts=[[0, True]]
