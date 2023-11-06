@@ -262,7 +262,18 @@ def progress(list_var,list_chgmts):
     l1 : nouvelle list_var 
     l2 : nouvelle list_chgmts 
     '''
-    
+    if None not in list_var:
+        return list_var, list_chgmts
+    else:
+        for i in range(len(list_var)):
+            if list_var[i]==None:
+                list_var[i]=True
+                list_chgmts.append([i,True])
+                break
+
+        return list_var, list_chgmts
+        
+
 '''
 list_var=[True, None, None, None, None]
 list_chgmts=[[0, True]]
@@ -299,8 +310,8 @@ list_chgmts=[[2, False]]
 l1=[True, False, False, True, None]
 l2=[[2, False], [3, True]]
 test("essai cas 6 progress : ",progress(list_var,list_chgmts),(l1,l2))
-
 '''
+
 
 def progress_simpl_for(formule,list_var,list_chgmts):
     '''Arguments : formule,list_var, list_chgmts définies comme précédemment
@@ -369,9 +380,20 @@ def retour(list_var,list_chgmts):
     renvoie :l1,l2 avec :
     l1 : la liste actualisée des valeurs attribuées aux variables 
     l2 : la liste actualisée de l'ensemble des changements effectués depuis une formule initiale
-    
     '''
-'''
+    if list_chgmts == []:
+        return list_var, list_chgmts
+    else: 
+        for i in range(0,len(list_var),-1):
+            if list_var[i]==None:
+                continue
+            else: 
+                for j in range(0,len(list_chgmts),-1):
+                    if list_chgmts[j][0] == i:
+                        if list_chgmts[j]== False:
+                            pass
+
+
 list_var= [True, True, None, None, None]
 list_chgmts= [[0, True], [1, True]]
 l1= [True, False, None, None, None]
@@ -407,7 +429,6 @@ list_chgmts= [[1, False]]
 l1= [True, None, False, True, None]
 l2= []
 test("essai cas 6 retour : ",retour(list_var,list_chgmts),(l1,l2))
-'''
 
 def retour_simpl_for(formule_init,list_var,list_chgmts):
     '''
