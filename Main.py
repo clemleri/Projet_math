@@ -262,18 +262,16 @@ def progress(list_var,list_chgmts):
     l1 : nouvelle list_var 
     l2 : nouvelle list_chgmts 
     '''
-    if None not in list_var:
-        return list_var, list_chgmts
-    else:
-        for i in range(len(list_var)):
-            if list_var[i]==None:
-                list_var[i]=True
-                list_chgmts.append([i,True])
-                break
-
-        return list_var, list_chgmts
+    None_here = None in list_var
+    for i in range(len(list_var)):
+        if list_var[i]== False:
+            continue
+        elif list_var[i]==None:
+            list_var[i]=True
+            list_chgmts.append([i, True])
+            return list_var, list_chgmts
+    return list_var, list_chgmts
         
-
 '''
 list_var=[True, None, None, None, None]
 list_chgmts=[[0, True]]
@@ -311,7 +309,6 @@ l1=[True, False, False, True, None]
 l2=[[2, False], [3, True]]
 test("essai cas 6 progress : ",progress(list_var,list_chgmts),(l1,l2))
 '''
-
 
 def progress_simpl_for(formule,list_var,list_chgmts):
     '''Arguments : formule,list_var, list_chgmts définies comme précédemment
@@ -384,16 +381,17 @@ def retour(list_var,list_chgmts):
     if list_chgmts == []:
         return list_var, list_chgmts
     else: 
-        for i in range(0,len(list_var),-1):
-            if list_var[i]==None:
-                continue
-            else: 
-                for j in range(0,len(list_chgmts),-1):
-                    if list_chgmts[j][0] == i:
-                        if list_chgmts[j]== False:
-                            pass
+        for i in range(len(list_chgmts)-1,-1,-1):
+            if list_var[list_chgmts[i][0]] == False:
+                list_var[list_chgmts[i][0]] = None
+                list_chgmts.pop(i)
+            elif list_var[list_chgmts[i][0]] == True:
+                list_var[list_chgmts[i][0]] = False
+                list_chgmts[i][1] = False
+                return list_var, list_chgmts
+    return list_var, list_chgmts
 
-
+'''
 list_var= [True, True, None, None, None]
 list_chgmts= [[0, True], [1, True]]
 l1= [True, False, None, None, None]
@@ -429,6 +427,7 @@ list_chgmts= [[1, False]]
 l1= [True, None, False, True, None]
 l2= []
 test("essai cas 6 retour : ",retour(list_var,list_chgmts),(l1,l2))
+'''
 
 def retour_simpl_for(formule_init,list_var,list_chgmts):
     '''
@@ -484,30 +483,56 @@ test('essai3_retour_simpl_for_dpll : ',retour_simpl_for_dpll(formule_init,list_v
 '''
 
 
-def resol_parcours_arbre(formule_init,list_var,list_chgmts):
-    '''Renvoie : SAT,l1
+def resol_parcours_arbre(formule_init,list_var,list_chgmts): 
+    '''
+    Renvoie : SAT,l1
     avec SAT : booléen indiquant la satisfiabilité de la formule
-          l1 : une liste de valuations rendant la formule vraie ou une liste vide'''
-    
-'''
+    l1 : une liste de valuations rendant la formule vraie ou une liste vide
+    '''
+
+    if evaluer_cnf(formule_init,list_var):
+        return True, list_var
+    elif None not in list_var and any(True in changement for changement in list_chgmts):
+        print("list_var: ", list_var, "list_chgmts: ", list_chgmts)
+        return False, []
+    else: 
+        teste_list_var, test_list_chgmts = copy.deepcopy(list_var), copy.deepcopy(list_chgmts)
+        teste_list_var, test_list_chgmts = progress(teste_list_var,test_list_chgmts)
+        if (list_var, list_chgmts) == (teste_list_var, test_list_chgmts):
+            print("-----------------------------------RETOUR utilisé-----------------------------------")
+            print("list_var: ", list_var, "list_chgmts: ", list_chgmts)
+            list_var, list_chgmts = retour(list_var,list_chgmts)
+            resol_parcours_arbre(formule_init,list_var, list_chgmts)
+        else:
+            print("-----------------------------------PROGRESS utilisé-----------------------------------")
+            print("list_var: ", list_var, "list_chgmts: ", list_chgmts)        
+            list_var, list_chgmts = progress(list_var,list_chgmts)
+            resol_parcours_arbre(formule_init,list_var, list_chgmts)
+
+
+
 formule_init= [[1, 4, -5], [-1, -5], [2, -3, 5], [2, -4], [2, 4, 5], [-1, -2], [-1, 2, -3], [-2, 4, -5], [1, -2]] 
 list_var= [True, True, False, True, None] 
 list_chgmts= [[1, True]]
 cor_resol=(False, [])
 test('essai1_resol_parcours_arbre : ',resol_parcours_arbre(formule_init,list_var,list_chgmts),cor_resol)
-
+print(resol_parcours_arbre(formule_init,list_var,list_chgmts))
+'''
 formule_init= [[5], [3, -5, -1, -2], [1, -2, -5], [2, -5, 1, -3], [3]] 
 list_var= [True, False, None, False, True] 
 list_chgmts= [[0, True]]
 cor_resol=(True,[True, False, True, False, True])
 test('essai2_resol_parcours_arbre : ',resol_parcours_arbre(formule_init,list_var,list_chgmts),cor_resol)
+print(resol_parcours_arbre(formule_init,list_var,list_chgmts))
+
 
 formule_init= [[-5, 2, -3, -4], [1, -5], [5, 2], [3, -2, 4], [5, -2, -1]] 
 list_var= [False, True, False, None, None] 
 list_chgmts= [[1, True]]
 cor_resol=(True,[False, True, False, True, False])
 test('essai3_resol_parcours_arbre : ',resol_parcours_arbre(formule_init,list_var,list_chgmts),cor_resol)
-'''   
+print(resol_parcours_arbre(formule_init,list_var,list_chgmts))
+'''
 
 def resol_parcours_arbre_simpl_for(formule_init,formule,list_var,list_chgmts):#la même distinction peut être faite entre formule et formule_init
     '''
