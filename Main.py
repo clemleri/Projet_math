@@ -208,10 +208,20 @@ def enlever_litt_for(formule,litteral):
     litteral : un entier non nul traduisant la valeur logique prise par une variable
         Renvoie : la formule simplifiée
     '''
+    for i in range(len(formule)-1):
+        if litteral in formule[i]:
+            for valuation in formule[i]:
+                if valuation == abs(litteral):
+                    if valuation == litteral:
+                        formule.pop(i)
+                    else:
+                        formule[i].remove(valuation)
+    return formule, litteral
+            
     
-'''for1=[[1,2,4,-5],[-1,2,3,-4],[-1,-2,-5],[-3,4,5],[-2,3,4,5],[-4]]
+for1=[[1,2,4,-5],[-1,2,3,-4],[-1,-2,-5],[-3,4,5],[-2,3,4,5],[-4]]
 litt1=4
-test('essai cas 1 enlever_litt_for : ',enlever_litt_for(for1,litt1),[[-1, 2, 3], [-1, -2, -5], []])'''
+test('essai cas 1 enlever_litt_for : ',enlever_litt_for(for1,litt1),[[-1, 2, 3], [-1, -2, -5], []])
 
 def init_formule_simpl_for(formule_init,list_var):
     '''
@@ -489,41 +499,34 @@ def resol_parcours_arbre(formule_init,list_var,list_chgmts):
     avec SAT : booléen indiquant la satisfiabilité de la formule
     l1 : une liste de valuations rendant la formule vraie ou une liste vide
     '''
-
     if evaluer_cnf(formule_init,list_var):
         return True, list_var
-    elif None not in list_var and any(True in changement for changement in list_chgmts):
-        print("list_var: ", list_var, "list_chgmts: ", list_chgmts)
+    elif list_chgmts == []:
         return False, []
     else: 
-        teste_list_var, test_list_chgmts = copy.deepcopy(list_var), copy.deepcopy(list_chgmts)
-        teste_list_var, test_list_chgmts = progress(teste_list_var,test_list_chgmts)
-        if (list_var, list_chgmts) == (teste_list_var, test_list_chgmts):
-            print("-----------------------------------RETOUR utilisé-----------------------------------")
-            print("list_var: ", list_var, "list_chgmts: ", list_chgmts)
+        test_list_var, test_list_chgmts = copy.deepcopy(list_var), copy.deepcopy(list_chgmts)
+        test_list_var, test_list_chgmts = progress(test_list_var, test_list_chgmts)
+        if (list_var, list_chgmts) == (test_list_var, test_list_chgmts):
             list_var, list_chgmts = retour(list_var,list_chgmts)
-            resol_parcours_arbre(formule_init,list_var, list_chgmts)
+            return resol_parcours_arbre(formule_init,list_var, list_chgmts)
         else:
-            print("-----------------------------------PROGRESS utilisé-----------------------------------")
-            print("list_var: ", list_var, "list_chgmts: ", list_chgmts)        
             list_var, list_chgmts = progress(list_var,list_chgmts)
-            resol_parcours_arbre(formule_init,list_var, list_chgmts)
+            return resol_parcours_arbre(formule_init,list_var, list_chgmts)
+        
 
 
-
+'''
 formule_init= [[1, 4, -5], [-1, -5], [2, -3, 5], [2, -4], [2, 4, 5], [-1, -2], [-1, 2, -3], [-2, 4, -5], [1, -2]] 
 list_var= [True, True, False, True, None] 
 list_chgmts= [[1, True]]
 cor_resol=(False, [])
 test('essai1_resol_parcours_arbre : ',resol_parcours_arbre(formule_init,list_var,list_chgmts),cor_resol)
-print(resol_parcours_arbre(formule_init,list_var,list_chgmts))
-'''
+
 formule_init= [[5], [3, -5, -1, -2], [1, -2, -5], [2, -5, 1, -3], [3]] 
 list_var= [True, False, None, False, True] 
 list_chgmts= [[0, True]]
 cor_resol=(True,[True, False, True, False, True])
 test('essai2_resol_parcours_arbre : ',resol_parcours_arbre(formule_init,list_var,list_chgmts),cor_resol)
-print(resol_parcours_arbre(formule_init,list_var,list_chgmts))
 
 
 formule_init= [[-5, 2, -3, -4], [1, -5], [5, 2], [3, -2, 4], [5, -2, -1]] 
@@ -531,7 +534,6 @@ list_var= [False, True, False, None, None]
 list_chgmts= [[1, True]]
 cor_resol=(True,[False, True, False, True, False])
 test('essai3_resol_parcours_arbre : ',resol_parcours_arbre(formule_init,list_var,list_chgmts),cor_resol)
-print(resol_parcours_arbre(formule_init,list_var,list_chgmts))
 '''
 
 def resol_parcours_arbre_simpl_for(formule_init,formule,list_var,list_chgmts):#la même distinction peut être faite entre formule et formule_init
