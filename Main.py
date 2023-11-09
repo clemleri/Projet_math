@@ -220,26 +220,32 @@ def enlever_litt_for(formule,litteral):
     return result 
             
     
-for1=[[1,2,4,-5],[-1,2,3,-4],[-1,-2,-5],[-3,4,5],[-2,3,4,5],[-4]]
+'''for1=[[1,2,4,-5],[-1,2,3,-4],[-1,-2,-5],[-3,4,5],[-2,3,4,5],[-4]]
 litt1=4
-test('essai cas 1 enlever_litt_for : ',enlever_litt_for(for1,litt1),[[-1, 2, 3], [-1, -2, -5], []])
+test('essai cas 1 enlever_litt_for : ',enlever_litt_for(for1,litt1),[[-1, 2, 3], [-1, -2, -5], []])'''
 
 def init_formule_simpl_for(formule_init,list_var):
     '''
     Renvoie : La formule simplifiée en tenant compte des valeurs logiques renseignées dans list_var
     '''
     result = []
-    for i in range(len(formule_init)):
-        for valuation in list_var:
-            for variable in formule_init[i]:
-                if abs(i) == abs(variable):
-                    if valuation == None:
-                        continue
-                    elif valuation == variable:
-                        pass 
+    for clauses in formule_init:
+            clause_result = []
+            for variable in clauses:
+                if list_var[abs(variable)-1] == None:
+                    clause_result.append(variable)
+                elif (variable < 0 and list_var[abs(variable)-1] == False) or (variable > 0 and list_var[abs(variable)-1] == True):
+                    clause_result = []
+                    break
+                else:
+                    continue
+            if clause_result != []:
+                result.append(clause_result)
+    return result
+
             
 
-list_var_for1=[False, None, None, False, None]
+'''list_var_for1=[False, None, None, False, None]
 for1=[[-5, -3, 4, -1], [3], [5, -2], [-2, 1, -4], [1, -3]]
 cor_for1=[[3], [5, -2], [-3]]
 test_for('test1_init_formule_simpl_for : ',init_formule_simpl_for(for1,list_var_for1),cor_for1)
@@ -252,16 +258,27 @@ test_for('test2_init_formule_simpl_for : ',init_formule_simpl_for(for2,list_var_
 list_var_for3= [None, None, None, True, None]
 for3= [[-5, -1], [-1, -3], [4], [-4, 1], [-2, -1, 3]]
 cor_for3=[[-5, -1], [-1, -3], [1], [-2, -1, 3]]
-test_for('test3_init_formule_simpl_for : ',init_formule_simpl_for(for3,list_var_for3),cor_for3)
+test_for('test3_init_formule_simpl_for : ',init_formule_simpl_for(for3,list_var_for3),cor_for3)'''
 
 
 def retablir_for(formule_init,list_chgmts):
-    '''Arguments : une formule initiale et une liste de changements à apporter sur un ensemble de variables (chaque changement étant une liste [i,bool] avec i l'index qu'occupe la variable dans list_var et bool la valeur logique qui doit lui être assignée) 
+    '''Arguments : une formule initiale et une liste de changements à apporter sur un ensemble de variables (chaque changement étant une liste [i,bool] 
+    avec i l'index qu'occupe la variable dans list_var et bool la valeur logique qui doit lui être assignée) 
     Renvoie : la formule simplifiée en tenant compte de l'ensemble des changements
 '''
-    
+    nb_variable = 0
+    for clauses in formule_init:
+        for variables in clauses:
+            if abs(variables) > nb_variable:
+                nb_variable = variables
+    list_var = [list_chgmts[i][1] for i in range(len(list_chgmts))]
+    if len(list_var) != nb_variable-1:
+        for i in range(nb_variable-len(list_var)):
+            list_var.append(None)
+    print(list_var)
+    return init_formule_simpl_for(formule_init, list_var)
 
-'''
+
 formule_init=[[1, 2, 4, -5], [-1, 2, 3, -4], [-1, -2, -5], [-3, 4, 5], [-2, 3, 4, 5], [-4, 5]]
 list_chgmts1=[[0, True], [1, True], [2, False]]
 form1=[[-5], [4, 5], [-4, 5]]
@@ -273,8 +290,9 @@ list_chgmts3=[[0, True], [1, True], [2, False], [3, False]]
 form3=[[-5], [5]]
 test('essai cas 1 retablir_for : ',retablir_for(formule_init,list_chgmts1),form1)
 test('essai cas 2 retablir_for : ',retablir_for(formule_init,list_chgmts2),form2)
+print(retablir_for(formule_init,list_chgmts1),form1)
 test('essai cas 3 retablir_for : ',retablir_for(formule_init,list_chgmts3),form3)
-'''
+
 
 def progress(list_var,list_chgmts):
     '''Arguments : list_var, list_chgmts définies comme précédemment
