@@ -208,15 +208,16 @@ def enlever_litt_for(formule,litteral):
     litteral : un entier non nul traduisant la valeur logique prise par une variable
         Renvoie : la formule simplifiée
     '''
-    for i in range(len(formule)-1):
-        if litteral in formule[i]:
-            for valuation in formule[i]:
-                if valuation == abs(litteral):
-                    if valuation == litteral:
-                        formule.pop(i)
-                    else:
-                        formule[i].remove(valuation)
-    return formule, litteral
+    result = []
+    for clause in formule:
+        if litteral in clause:
+            continue
+        elif -(litteral) in clause:
+            clause.remove(-(litteral))
+            result.append(clause)
+        else:
+            result.append(clause)
+    return result 
             
     
 for1=[[1,2,4,-5],[-1,2,3,-4],[-1,-2,-5],[-3,4,5],[-2,3,4,5],[-4]]
