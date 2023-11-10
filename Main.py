@@ -265,7 +265,7 @@ def retablir_for(formule_init,list_chgmts):
     '''Arguments : une formule initiale et une liste de changements à apporter sur un ensemble de variables (chaque changement étant une liste [i,bool] 
     avec i l'index qu'occupe la variable dans list_var et bool la valeur logique qui doit lui être assignée) 
     Renvoie : la formule simplifiée en tenant compte de l'ensemble des changements
-'''
+    '''
     nb_variable = 0
     for clauses in formule_init:
         for variables in clauses:
