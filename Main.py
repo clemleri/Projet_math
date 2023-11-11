@@ -1,6 +1,7 @@
 import numpy as np
 import copy
 import time
+import timeit
 
 #TROIS PETITES FONCTIONS DE TEST UTILISEES PLUS BAS#
 def test(mess,eval,res):
@@ -50,7 +51,16 @@ def test_for(mess,formu,res_for):
                 print(mess+'wowowow y a du doublon là-dedans')
                 return 
     print(mess+'Ok')
-    
+
+def mesurer_temps_execution(fonction, list_var, list_chgmts):
+    temps_execution = timeit.timeit(lambda: fonction(list_var, list_chgmts), number=1000000)
+    return temps_execution
+
+def comparer_temps_executions(fonction1, fonction2, list_var,list_chgmts ):
+    temps1 = mesurer_temps_execution(fonction1, list_var, list_chgmts)
+    temps2 = mesurer_temps_execution(fonction2, list_var, list_chgmts)
+    print("temps première fonction: ",temps1, "temps deuxième fonction: ", temps2)
+
 #A VOUS DE JOUER#
 def evaluer_clause(clause,list_var):
     '''
@@ -206,7 +216,7 @@ def enlever_litt_for(formule,litteral):
     '''Arguments :
     formule : comme précédemment
     litteral : un entier non nul traduisant la valeur logique prise par une variable
-        Renvoie : la formule simplifiée
+    Renvoie : la formule simplifiée
     '''
     result = []
     for clause in formule:
@@ -258,27 +268,29 @@ test_for('test2_init_formule_simpl_for : ',init_formule_simpl_for(for2,list_var_
 list_var_for3= [None, None, None, True, None]
 for3= [[-5, -1], [-1, -3], [4], [-4, 1], [-2, -1, 3]]
 cor_for3=[[-5, -1], [-1, -3], [1], [-2, -1, 3]]
-test_for('test3_init_formule_simpl_for : ',init_formule_simpl_for(for3,list_var_for3),cor_for3)'''
+test_for('test3_init_formule_simpl_for : ',init_formule_simpl_for(for3,list_var_for3),cor_for3)
 
+
+list_var_for4 = [True, True, False, True, False]
+for4 = [[1, 2, 4, -5], [-1, 2, 3, -4], [-1, -2, -5], [-3, 4, 5], [-2, 3, 4, 5], [-4, 5]]
+cor_for4 = []
+test_for('test4_init_formule_simpl_for : ',init_formule_simpl_for(for4,list_var_for4),cor_for4)
+'''
 
 def retablir_for(formule_init,list_chgmts):
     '''Arguments : une formule initiale et une liste de changements à apporter sur un ensemble de variables (chaque changement étant une liste [i,bool] 
     avec i l'index qu'occupe la variable dans list_var et bool la valeur logique qui doit lui être assignée) 
     Renvoie : la formule simplifiée en tenant compte de l'ensemble des changements
     '''
-    nb_variable = 0
-    for clauses in formule_init:
-        for variables in clauses:
-            if abs(variables) > nb_variable:
-                nb_variable = variables
-    list_var = [list_chgmts[i][1] for i in range(len(list_chgmts))]
-    if len(list_var) != nb_variable-1:
-        for i in range(nb_variable-len(list_var)):
-            list_var.append(None)
-    print(list_var)
-    return init_formule_simpl_for(formule_init, list_var)
+    result = copy.deepcopy(formule_init)
+    for i in range(len(list_chgmts)):
+        if list_chgmts[i][1] == True:
+            result = enlever_litt_for(result, (list_chgmts[i][0])+1)
+        elif list_chgmts[i][1] == False:
+            result = enlever_litt_for(result, -((list_chgmts[i][0])+1))
+    return result
 
-
+'''
 formule_init=[[1, 2, 4, -5], [-1, 2, 3, -4], [-1, -2, -5], [-3, 4, 5], [-2, 3, 4, 5], [-4, 5]]
 list_chgmts1=[[0, True], [1, True], [2, False]]
 form1=[[-5], [4, 5], [-4, 5]]
@@ -290,9 +302,8 @@ list_chgmts3=[[0, True], [1, True], [2, False], [3, False]]
 form3=[[-5], [5]]
 test('essai cas 1 retablir_for : ',retablir_for(formule_init,list_chgmts1),form1)
 test('essai cas 2 retablir_for : ',retablir_for(formule_init,list_chgmts2),form2)
-print(retablir_for(formule_init,list_chgmts1),form1)
 test('essai cas 3 retablir_for : ',retablir_for(formule_init,list_chgmts3),form3)
-
+'''
 
 def progress(list_var,list_chgmts):
     '''Arguments : list_var, list_chgmts définies comme précédemment
@@ -300,7 +311,6 @@ def progress(list_var,list_chgmts):
     l1 : nouvelle list_var 
     l2 : nouvelle list_chgmts 
     '''
-    None_here = None in list_var
     for i in range(len(list_var)):
         if list_var[i]== False:
             continue
@@ -348,17 +358,52 @@ l2=[[2, False], [3, True]]
 test("essai cas 6 progress : ",progress(list_var,list_chgmts),(l1,l2))
 '''
 
+def progress_benj(list_var,list_chgmts):
+    '''Arguments : list_var, list_chgmts définies comme précédemment
+    Renvoie : l1,l2
+    l1 : nouvelle list_var 
+    l2 : nouvelle list_chgmts 
+    '''
+    l1 = list_var[:]
+    l2 = list_chgmts[:]
+    
+    for i in range(len(l1)):
+        if l1[i] == None:
+            l1[i] = True
+            l2.append([i, True])
+            return l1, l2
+    return l1, l2
+
+'''liste_teste = [
+    ([True, None, None, None, None],[[0, True]]),
+    ([True, False, False, None, None], [[0, True], [1, False], [2, False]]),
+    ([None, None, None, None, None], []),
+    ([False, None, None, None, None], [[0, False]]),
+    ([True, False, None, None, None], []),
+    ([True, False, False, None, None],[[2, False]])
+]
+
+for testes in liste_teste:
+    comparer_temps_executions(progress, progress_benj, testes[0], testes[1])'''
+
 def progress_simpl_for(formule,list_var,list_chgmts):
     '''Arguments : formule,list_var, list_chgmts définies comme précédemment
     Renvoie : form,l1,l2
     form : nouvelle formule
     l1 : nouvelle list_var 
     l2 : nouvelle list_chgmts 
-'''
+    '''
+    for i in range(len(list_var)):
+        if list_var[i]== False:
+            continue
+        elif list_var[i]==None:
+            list_var[i]=True
+            list_chgmts.append([i, True])
+            break
+    return retablir_for(formule,list_chgmts), list_var, list_chgmts
     
-    
-'''
-formule= [[1, 2, 4, -5], [-1, 2, 3, -4], [-1, -2, -5], [-3, 4, 5], [-2, 3, 4, 5], [-4, 5]] 
+
+'''formule= [[1, 2, 4, -5], [-1, 2, 3, -4], [-1, -2, -5], [-3, 4, 5], [-2, 3, 4, 5], [-4, 5]] 
 list_var= [None, None, None, None, None] 
 list_chgmts= []
 cor_form,cor_l1,cor_l2= ([[2, 3, -4], [-2, -5], [-3, 4, 5], [-2, 3, 4, 5], [-4, 5]],[True, None, None, None, None],[[0, True]])
@@ -375,8 +420,8 @@ formule= [[3, -4], [-3, 4, 5], [-4, 5]]
 list_var= [True, False, None, None, None] 
 list_chgmts= [[0, True], [1, False]]
 cor_form,cor_l1,cor_l2= ([[4, 5], [-4, 5]],[True, False, True, None, None],[[0, True], [1, False], [2, True]])
-test('essai3_progress_simpl_for : ',progress_simpl_for(formule,list_var,list_chgmts),(cor_form,cor_l1,cor_l2))
-'''    
+test('essai3_progress_simpl_for : ',progress_simpl_for(formule,list_var,list_chgmts),(cor_form,cor_l1,cor_l2))'''
+    
 
 def progress_simpl_for_dpll(formule,list_var,list_chgmts,list_sans_retour):
     '''Arguments : list_sans_retour contient l'ensemble des numéros de variables auxquelles on a affecté une valeur logique sur laquelle on ne reviendra pas
@@ -466,17 +511,64 @@ l1= [True, None, False, True, None]
 l2= []
 test("essai cas 6 retour : ",retour(list_var,list_chgmts),(l1,l2))
 '''
+def retour_benj(list_var,list_chgmts):
+    '''
+    renvoie :l1,l2 avec :
+    l1 : la liste actualisée des valeurs attribuées aux variables 
+    l2 : la liste actualisée de l'ensemble des changements effectués depuis une formule initiale
+    
+    '''
+    l1 = list_var[:]
+    l2 = list_chgmts[:]
+
+    if not l2:
+        return l1, l2
+
+    for change in reversed(l2):
+        variable_index, value = change
+        if value == False:
+            l1[variable_index] = None
+            l2.remove(change)
+        elif value == True:
+            change[1] = False
+            l1[variable_index] = False
+            return l1, l2
+    return l1, l2
+
+'''liste_teste = [
+    ([True, True, None, None, None],[[0, True], [1, True]]),
+    ([True, False, None, None, None], [[0, True], [1, False]]),
+    ([True, False, False, True, None], []),
+    ([True, False, False, False, False], [[0, True], [1, False], [2, False], [3, False], [4, False]]),
+    ([True, True, False, True, None], [[1, True]]),
+    ([True, False, False, True, None],[[1, False]])
+]
+
+for testes in liste_teste:
+    comparer_temps_executions(progress, progress_benj, testes[0], testes[1])'''
 
 def retour_simpl_for(formule_init,list_var,list_chgmts):
     '''
-Renvoie : form,l1,l2
+    Renvoie : form,l1,l2
     form : nouvelle formule
     l1 : nouvelle list_var 
     l2 : nouvelle list_chgmts 
-'''
+    '''
+    if list_chgmts == []:
+        return formule_init, list_var, list_chgmts
+    else: 
+        for i in range(len(list_chgmts)-1,-1,-1):
+            if list_var[list_chgmts[i][0]] == False:
+                list_var[list_chgmts[i][0]] = None
+                list_chgmts.pop(i)
+            elif list_var[list_chgmts[i][0]] == True:
+                list_var[list_chgmts[i][0]] = False
+                list_chgmts[i][1] = False
+                break
+        return retablir_for(formule_init,list_chgmts), list_var, list_chgmts
 
-'''
-formule_init= [[-2, 1, -5, -4], [2, 4, -1], [-5, 4], [1, 4, -2], [-4, -2, 5]] 
+
+'''formule_init= [[-2, 1, -5, -4], [2, 4, -1], [-5, 4], [1, 4, -2], [-4, -2, 5]] 
 list_var= [True, True, False, False, True] 
 list_chgmts= [[0, True], [4, True]]
 cor_form,cor_l1,cor_l2= ([[2, 4], [-4, -2]],[True, True, False, False, False],[[0, True], [4, False]])
@@ -486,8 +578,8 @@ formule_init= [[5, 4, -3], [-2, -5, 3], [-1]]
 list_var= [False, True, True, False, False] 
 list_chgmts= [[2, True]]
 cor_form,cor_l1,cor_l2= ([[-2, -5], [-1]],[False, True, False, False, False],[[2, False]])
-test('essai2_retour_simpl_for : ',retour_simpl_for(formule_init,list_var,list_chgmts),(cor_form,cor_l1,cor_l2))
-'''    
+test('essai2_retour_simpl_for : ',retour_simpl_for(formule_init,list_var,list_chgmts),(cor_form,cor_l1,cor_l2))'''
+    
 
 def retour_simpl_for_dpll(formule_init,list_var,list_chgmts,list_sans_retour):
     '''
@@ -567,20 +659,38 @@ test('essai3_resol_parcours_arbre : ',resol_parcours_arbre(formule_init,list_var
 def resol_parcours_arbre_simpl_for(formule_init,formule,list_var,list_chgmts):#la même distinction peut être faite entre formule et formule_init
     '''
     Renvoie SAT,l1 avec :
-SAT=True ou False
-l1=une liste de valuations rendant la formule vraie ou une liste vide
-''' 
+    SAT=True ou False
+    l1=une liste de valuations rendant la formule vraie ou une liste vide
+    ''' 
         #Initialisation du parcours
     if list_chgmts==[]:
         if [] in formule:
             return False,[]
         if formule==[]:
             return True,list_var
+        print("----------------------------------------PROGRESS_list_chgmts=[]----------------------------------------")
         form,list_var_init,list_chgmts_init=progress_simpl_for(formule,list_var,[])
+        print("form: ", form, "list_var_init", list_var_init,"list_chgmts_init: ", list_chgmts_init)
         return resol_parcours_arbre_simpl_for(formule_init,form,list_var_init,list_chgmts_init)
     #Reste du parcours à implémenter :
-'''
-formule_init= [[1, 2, 4, -5], [-1, 2, 3, -4], [-1, -2, -5], [-3, 4, 5], [-2, 3, 4, 5], [-4, 5]] 
+    else: 
+        previous_formule = retour_simpl_for(formule,list_var,list_chgmts)[0]
+        next_formule = progress_simpl_for(formule, list_var, list_chgmts)[0]
+        if [] in formule:
+            print("----------------------------------------RETOUR----------------------------------------")
+            formule,list_var,list_chgmts=retour_simpl_for(formule_init,list_var,list_chgmts)
+        else:
+            print("----------------------------------------PROGRES----------------------------------------")
+            formule_init = copy.deepcopy(formule)
+            new_formule,list_var,list_chgmts=progress_simpl_for(formule,list_var,list_chgmts)
+        print("formule_init: ", formule_init)
+        print("formule: ", formule,"list_var: ", list_var, "list_chgmts: ", list_chgmts)
+        
+        return resol_parcours_arbre_simpl_for(formule_init,new_formule,list_var,list_chgmts)
+
+
+
+'''formule_init= [[1, 2, 4, -5], [-1, 2, 3, -4], [-1, -2, -5], [-3, 4, 5], [-2, 3, 4, 5], [-4, 5]] 
 formule= [[2, 3, -4], [-2, -5], [-3, 4, 5], [-2, 3, 4, 5], [-4, 5]] 
 list_var= [True, None, None, None, None] 
 list_chgmts= [[0, True]]
