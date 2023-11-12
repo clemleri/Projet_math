@@ -661,30 +661,29 @@ def resol_parcours_arbre_simpl_for(formule_init,formule,list_var,list_chgmts):#l
             return False,[]
         if formule==[]:
             return True,list_var
-        print("----------------------------------------PROGRESS LIST_CHANGEMENT = [] ----------------------------------------")
+        print("----------------------------------------PROGRESS LIST_CHANGEMENT = []----------------------------------------")
         form,list_var_init,list_chgmts_init=progress_simpl_for(formule,list_var,[])
         print("form: ", form, "list_var_init", list_var_init,"list_chgmts_init: ", list_chgmts_init)
         return resol_parcours_arbre_simpl_for(formule_init,form,list_var_init,list_chgmts_init)
     #Reste du parcours à implémenter :
-    else:
-        if formule==[]:
-            return True,list_var
-        elif [] in formule:
-            print("----------------------------------------RETOUR----------------------------------------")
-            print()
-            print("formule_init copiée = init_formule_simpl_for: ", formule, "list_var: ", list_var)
-            formule,list_var,list_chgmts=retour_simpl_for(formule,list_var,list_chgmts)
-            formule = copy.deepcopy(formule_init)
-            formule = init_formule_simpl_for(formule, list_var)
-        else:
-            print("----------------------------------------PROGRES----------------------------------------")
-            print()
-            formule,list_var,list_chgmts=progress_simpl_for(formule,list_var,list_chgmts)
-        print("formule_init: ", formule_init)
-        print("formule: ", formule,"list_var: ", list_var, "list_chgmts: ", list_chgmts)
+    print("----------formule au moment if----------", "formule :", formule, "formule_init", formule_init)
+    if formule == []:
+        list_chgmts = []
+    if [] in formule:
+        print("----------------------------------------RETOUR----------------------------------------")
         print()
-        
-        return resol_parcours_arbre_simpl_for(formule_init,formule,list_var,list_chgmts)
+        print("formule_init copiée = init_formule_simpl_for: ", formule, "list_var: ", list_var)
+        formule,list_var,list_chgmts=retour_simpl_for(formule,list_var,list_chgmts)
+        formule = copy.deepcopy(formule_init)
+        formule = init_formule_simpl_for(formule, list_var)
+    else:
+        print("----------------------------------------PROGRES----------------------------------------")
+        print()
+        formule,list_var,list_chgmts=progress_simpl_for(formule,list_var,list_chgmts)
+    print("formule_init: ", formule_init)
+    print("formule: ", formule,"list_var: ", list_var, "list_chgmts: ", list_chgmts)
+    print() 
+    return resol_parcours_arbre_simpl_for(formule_init,formule,list_var,list_chgmts)
 
 
 
