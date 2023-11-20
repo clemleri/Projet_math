@@ -52,14 +52,6 @@ def test_for(mess,formu,res_for):
                 return 
     print(mess+'Ok')
 
-def mesurer_temps_execution(fonction, list_var, list_chgmts):
-    temps_execution = timeit.timeit(lambda: fonction(list_var, list_chgmts), number=1000000)
-    return temps_execution
-
-def comparer_temps_executions(fonction1, fonction2, list_var,list_chgmts ):
-    temps1 = mesurer_temps_execution(fonction1, list_var, list_chgmts)
-    temps2 = mesurer_temps_execution(fonction2, list_var, list_chgmts)
-    print("temps première fonction: ",temps1, "temps deuxième fonction: ", temps2)
 
 #A VOUS DE JOUER#
 def evaluer_clause(clause,list_var):
@@ -351,33 +343,6 @@ l2=[[2, False], [3, True]]
 test("essai cas 6 progress : ",progress(list_var,list_chgmts),(l1,l2))
 '''
 
-def progress_benj(list_var,list_chgmts):
-    '''Arguments : list_var, list_chgmts définies comme précédemment
-    Renvoie : l1,l2
-    l1 : nouvelle list_var 
-    l2 : nouvelle list_chgmts 
-    '''
-    l1 = list_var[:]
-    l2 = list_chgmts[:]
-    
-    for i in range(len(l1)):
-        if l1[i] == None:
-            l1[i] = True
-            l2.append([i, True])
-            return l1, l2
-    return l1, l2
-
-'''liste_teste = [
-    ([True, None, None, None, None],[[0, True]]),
-    ([True, False, False, None, None], [[0, True], [1, False], [2, False]]),
-    ([None, None, None, None, None], []),
-    ([False, None, None, None, None], [[0, False]]),
-    ([True, False, None, None, None], []),
-    ([True, False, False, None, None],[[2, False]])
-]
-
-for testes in liste_teste:
-    comparer_temps_executions(progress, progress_benj, testes[0], testes[1])'''
 
 def progress_simpl_for(formule,list_var,list_chgmts):
     '''Arguments : formule,list_var, list_chgmts définies comme précédemment
@@ -532,41 +497,7 @@ l1= [True, None, False, True, None]
 l2= []
 test("essai cas 6 retour : ",retour(list_var,list_chgmts),(l1,l2))
 '''
-def retour_benj(list_var,list_chgmts):
-    '''
-    renvoie :l1,l2 avec :
-    l1 : la liste actualisée des valeurs attribuées aux variables 
-    l2 : la liste actualisée de l'ensemble des changements effectués depuis une formule initiale
-    
-    '''
-    l1 = list_var[:]
-    l2 = list_chgmts[:]
 
-    if not l2:
-        return l1, l2
-
-    for change in reversed(l2):
-        variable_index, value = change
-        if value == False:
-            l1[variable_index] = None
-            l2.remove(change)
-        elif value == True:
-            change[1] = False
-            l1[variable_index] = False
-            return l1, l2
-    return l1, l2
-
-'''liste_teste = [
-    ([True, True, None, None, None],[[0, True], [1, True]]),
-    ([True, False, None, None, None], [[0, True], [1, False]]),
-    ([True, False, False, True, None], []),
-    ([True, False, False, False, False], [[0, True], [1, False], [2, False], [3, False], [4, False]]),
-    ([True, True, False, True, None], [[1, True]]),
-    ([True, False, False, True, None],[[1, False]])
-]
-
-for testes in liste_teste:
-    comparer_temps_executions(progress, progress_benj, testes[0], testes[1])'''
 
 def retour_simpl_for(formule_init,list_var,list_chgmts):
     '''
@@ -805,10 +736,26 @@ l1=une liste de valuations rendant la formule vraie ou une liste vide
         form,list_var_init,list_chgmts_init,list_sans_retour_init = progress_simpl_for_dpll(formule,list_var,[],[])
         return resol_parcours_arbre_simpl_for_dpll(formule_init,form,list_var_init,list_chgmts_init,list_sans_retour_init)
     #Reste du parcours à implémenter :
-    
+    if formule == []:
+        list_chgmts = []
+    if [] in formule:
+        if len(list_chgmts) == 1 and list_chgmts[0][1] == False:
+            return resol_parcours_arbre_simpl_for_dpll(formule_init,formule,list_var,[])
+        elif len(list_chgmts) == len(list_sans_retour) and [] in formule:
+            return resol_parcours_arbre_simpl_for_dpll(formule_init,formule,list_var,[],list_sans_retour)
+        else:   
+            formule,list_var,list_chgmts, list_sans_retour = retour_simpl_for_dpll(formule,list_var,list_chgmts, list_sans_retour)
+            formule = copy.deepcopy(formule_init)
+            formule = init_formule_simpl_for(formule, list_var)
+    else:
+        formule,list_var,list_chgmts, list_sans_retour = progress_simpl_for_dpll(formule,list_var,list_chgmts, list_sans_retour)
+        if formule == []:
+            list_chgmts = []
+    return resol_parcours_arbre_simpl_for_dpll(formule_init,formule,list_var,list_chgmts, list_sans_retour)
 
 
 
+"""
 formule_init= [[1, 2, 4, -5], [-1, 2, 3, -4], [-1, -2, -5], [-3, 4, 5], [-2, 3, 4, 5], [-4, 5]] 
 formule= [[2, 3, -4], [-2, -5], [-3, 4, 5], [-2, 3, 4, 5], [-4, 5]] 
 list_var= [True, None, None, None, None] 
@@ -840,7 +787,7 @@ list_chgmts= [[4, True]]
 list_sans_retour=[4]
 cor_resol=(False, [])
 test('essai4_resol_parcours_arbre_simpl_for_dpll : ',resol_parcours_arbre_simpl_for_dpll(formule_init,formule,list_var,list_chgmts,list_sans_retour),cor_resol)
-
+"""
         
 def ultim_resol(formule_init,list_var):
     '''
