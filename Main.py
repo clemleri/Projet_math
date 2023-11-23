@@ -793,9 +793,9 @@ test('essai5_resol_parcours_arbre_simpl_for : ',resol_parcours_arbre_simpl_for(f
 def resol_parcours_arbre_simpl_for_dpll(formule_init,formule,list_var,list_chgmts,list_sans_retour):
     '''
     Renvoie SAT,l1 avec :
-SAT=True ou False
-l1=une liste de valuations rendant la formule vraie ou une liste vide
-'''
+    SAT=True ou False
+    l1=une liste de valuations rendant la formule vraie ou une liste vide
+    '''
     #Initialisation du parcours
     if list_chgmts==[]:
         if [] in formule:
