@@ -262,12 +262,12 @@ def retour_simpl_for(formule_init,list_var,list_chgmts):
 
 def retour_simpl_for_dpll(formule_init,list_var,list_chgmts,list_sans_retour):
     '''
-Renvoie : form,l1,l2,l3
+    Renvoie : form,l1,l2,l3
     form : nouvelle formule
     l1 : nouvelle list_var 
     l2 : nouvelle list_chgmts
     l3 : nouvelle list_sans_retour
-'''
+    '''
 
 
 def resol_parcours_arbre(formule_init,list_var,list_chgmts):
@@ -291,10 +291,10 @@ def resol_parcours_arbre(formule_init,list_var,list_chgmts):
 def resol_parcours_arbre_simpl_for(formule_init,formule,list_var,list_chgmts):#la même distinction peut être faite entre formule et formule_init
     '''
     Renvoie SAT,l1 avec :
-SAT=True ou False
-l1=une liste de valuations rendant la formule vraie ou une liste vide
-''' 
-        #Initialisation du parcours
+    SAT=True ou False
+    l1=une liste de valuations rendant la formule vraie ou une liste vide
+    ''' 
+    #Initialisation du parcours
     if list_chgmts==[]:
         if [] in formule:
             return False,[]
@@ -305,7 +305,18 @@ l1=une liste de valuations rendant la formule vraie ou une liste vide
     #Reste du parcours à implémenter :
     elif formule == []:
         return resol_parcours_arbre_simpl_for(formule_init, formule, list_var, [])
-    elif [] in formule:
+
+    test = True
+
+    for changements in list_chgmts:
+        if changements[1] != False:
+            test = False 
+
+    if test and len(list_chgmts) > 0:
+        if list_chgmts[0][0] == 0:
+            return resol_parcours_arbre_simpl_for(formule_init,[[]],list_var,[])
+
+    if [] in formule:
         if len(list_chgmts) == 1 and not list_chgmts[0][1]:
             return resol_parcours_arbre_simpl_for(formule_init, formule, list_var, [])
         else:
